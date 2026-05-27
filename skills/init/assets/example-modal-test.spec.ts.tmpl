@@ -1,0 +1,87 @@
+// Example: modal test patterns — confirm dialog, cancel-with-rollback, waitForResponse-before-trigger.
+// Excluded from execution via playwright.config.ts testIgnore.
+
+import { test, expect } from '@POM/base-pages-fixture';
+
+test.beforeEach(async ({ loginPage, homePage, usersPage }) => {
+  await test.step('Given User logged in successfully', async () => {
+    await loginPage.visit();
+    await loginPage.loginWithDefaultCredentials();
+  });
+  await test.step('And navigated to Users', async () => {
+    await homePage.filterAndOpenFromSystemNav('Users');
+    await usersPage.initialize();
+  });
+});
+
+test.afterEach(async ({ browserPage }) => {
+  await browserPage.close();
+});
+
+test('{{TICKET_PREFIX}}-NNNNN: Delete confirmation can be cancelled', async ({
+  usersPage,
+  userEditPage,
+  newDescription
+}) => {
+  let cleanupNeeded = false;
+  await test.step('And a user exists', async () => {
+    await usersPage.addNewButton.click();
+    await userEditPage.descriptionInput.fill(newDescription);
+    await userEditPage.saveAndClose();
+    cleanupNeeded = true;
+  });
+  try {
+    await test.step('When User opens the user and clicks Delete', async () => {
+      await usersPage.editRowByDescription(newDescription);
+      await userEditPage.deleteButton.click();
+    });
+    await test.step('And cancels the confirmation modal', async () => {
+      await userEditPage.modalNoButton.click();
+    });
+    await test.step('Then the user still exists', async () => {
+      await userEditPage.backButton.click();
+      await usersPage.verifyExists(newDescription);
+    });
+  } finally {
+    if (cleanupNeeded) {
+      await test.step('Cleanup', async () => {
+        await usersPage.deleteRow(newDescription);
+      });
+    }
+  }
+});
+
+test('{{TICKET_PREFIX}}-NNNNN: Save triggers an API call', async ({
+  browserPage,
+  usersPage,
+  userEditPage,
+  newDescription
+}) => {
+  let cleanupNeeded = false;
+  await test.step('When User clicks Add New and fills the form', async () => {
+    await usersPage.addNewButton.click();
+    await userEditPage.descriptionInput.fill(newDescription);
+  });
+  try {
+    await test.step('And saves while the API listener is active', async () => {
+      // Set up the response listener BEFORE clicking — avoids race condition
+      const responsePromise = browserPage.waitForResponse(
+        r => r.url().includes('/api/users') && r.request().method() === 'POST' && r.status() === 200
+      );
+      await userEditPage.saveAndCloseButton.click();
+      const response = await responsePromise;
+      const data = await response.json();
+      expect(data).toHaveProperty('id');
+      cleanupNeeded = true;
+    });
+    await test.step('Then the user is visible in the grid', async () => {
+      await usersPage.verifyExists(newDescription);
+    });
+  } finally {
+    if (cleanupNeeded) {
+      await test.step('Cleanup', async () => {
+        await usersPage.deleteRow(newDescription);
+      });
+    }
+  }
+});

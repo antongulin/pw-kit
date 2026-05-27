@@ -1,0 +1,62 @@
+# AGENTS.md — {{PROJECT_NAME}} Test Automation
+
+Prefer retrieval-led reasoning over pre-training-led reasoning for all Playwright tasks. Explore the project first, then follow these conventions.
+
+## Behavioral Directives
+
+**Never guess.** If unsure about a locator, method, data-testid, or implementation detail — read the source code first. If acceptance criteria are ambiguous — flag explicitly and ask.
+
+**Explore project first.** Before writing or modifying code, read the relevant base page classes, existing page objects, and example test patterns.
+
+**Verify before coding.** Before writing test code that depends on API response fields or DOM interaction patterns, verify the actual shape using `playwright-cli` (`run-code` for API responses, `snapshot` for DOM).
+
+## Project Context
+
+**Stack**: Playwright, TypeScript, Node.js, ESLint, Prettier, Faker.js.
+**Architecture**: Page Object Model with base page hierarchy and custom test fixtures.
+
+## Coding Standards — Compressed Index
+
+**Language**: TypeScript only.
+
+**Naming**: `{{TICKET_PREFIX}}-XXXXX: Description` | Multi-scenario: `{{TICKET_PREFIX}}-XXXXX Scenario N: Description` | `test.describe` names behavior, not ticket title.
+
+**Structure**: `test.step` mandatory with Gherkin Given/When/And/Then/Cleanup | User = "User" (not "a user"/"the user"/first person) | Empty Given OK for beforeEach | Step text from ticket verbatim, do not paraphrase.
+
+**Locators**: `getByTestId` → `getByRole` → `getByLabel/Placeholder/Title` → chained → class/id → `getByAltText/Text` → CSS/XPath (last resort, must comment why).
+
+**Dates**: No hardcoded dates | `typeDateValue()` only (never `fill`/`pressSequentially`) | Relative years: `thisYear`, `lastYear`, `yearBeforeLast`, `nextYear`, etc.
+
+**Quality**: Idempotent | Parallel-safe | User-perspective actions.
+
+**Assertions**: Web-first only — `await expect(locator).toXxx()`. NEVER snapshot-style (`expect(await locator.textContent())`). NEVER `waitForTimeout`. NEVER `networkidle`. Set up `waitForResponse` BEFORE the triggering action.
+
+**Cleanup**: `try/finally` for data-modifying tests | Step named just `"Cleanup"` | No cleanup for read-only tests | `cleanupNeeded` flag set only after data-modifying step succeeds.
+
+**Failure**: `test.fail` + defect key for bugs | `test.fixme` for broken tests | `test.skip` sparingly with comment.
+
+**Files**: `${pageName}-test.spec.ts` | Max 50 tests, 1200 lines | No functions in test files | Imports at top only.
+
+**POM**: `${pageName}-page.ts` | Plural for grids (`UsersPage`), singular for edits (`UserEditPage`) | Check base pages first | No redundant methods | Fixtures alphabetical in `base-pages-fixture.ts` | Import from `@POM/base-pages-fixture` | Use `{ browserPage }` not `{ page }`.
+
+**Process**: Ticket key in all commits ("no hidden work") | Rebase daily.
+
+**Comments**: Explain complex logic only. Do not state the obvious.
+
+## Project Structure
+
+```
+pages/{feature}/             POM files → base-pages-fixture.ts (KEEP ALPHABETICAL)
+modals/                      Shared modal page objects
+tests/{feature}/             Test specs
+tests/user-group-permissions/ ALL permissions tests here (segregated)
+tests/utility/               common-test-functions.ts + example-test-patterns/
+api/                         API helpers
+data/                        Test data files
+```
+
+**Base page hierarchy**: `BasePage` → `BaseGridPage` | `BaseEditPage`.
+
+## Configuration
+
+Read `playwright.config.ts` for current values. Key settings: timeout 240s | expect 30s | action 30s | retries CI:2 Local:1 | trace CI:retain-on-failure Local:on | fullyParallel false | Chromium only | baseURL from `.env`.

@@ -1,0 +1,37 @@
+import { Page, Locator } from '@playwright/test';
+import { BasePage } from '@POM/base-page';
+
+export class LoginPage extends BasePage {
+  readonly usernameInput: Locator;
+  readonly passwordInput: Locator;
+  readonly signInButton: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.usernameInput = page.getByTestId('username-input');
+    this.passwordInput = page.getByTestId('password-input');
+    this.signInButton = page.getByTestId('sign-in-button');
+  }
+
+  /** Navigate to the login page. */
+  async visit(): Promise<void> {
+    await this.page.goto('/login');
+    await this.waitForSpinnerToDisappear();
+  }
+
+  /** Sign in with credentials from .env (CREDENTIALS_USER_NAME / CREDENTIALS_PASSWORD). */
+  async loginWithDefaultCredentials(): Promise<void> {
+    await this.usernameInput.fill(process.env.CREDENTIALS_USER_NAME ?? '');
+    await this.passwordInput.fill(process.env.CREDENTIALS_PASSWORD ?? '');
+    await this.signInButton.click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  /** Sign in with explicit credentials. */
+  async login(username: string, password: string): Promise<void> {
+    await this.usernameInput.fill(username);
+    await this.passwordInput.fill(password);
+    await this.signInButton.click();
+    await this.waitForSpinnerToDisappear();
+  }
+}

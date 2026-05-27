@@ -1,0 +1,21 @@
+import { Page, Locator } from '@playwright/test';
+import { BasePage } from '@POM/base-page';
+
+export class HomePage extends BasePage {
+  readonly systemNavSearch: Locator;
+  readonly hamburgerMenu: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.systemNavSearch = page.getByTestId('system-nav-search');
+    this.hamburgerMenu = page.getByTestId('hamburger-menu');
+  }
+
+  /** Filter the system navigation by a keyword, then click the first matching menu item. */
+  async filterAndOpenFromSystemNav(menuItemName: string): Promise<void> {
+    await this.systemNavSearch.fill(menuItemName);
+    await this.systemNavSearch.press('Enter');
+    await this.page.getByRole('link', { name: menuItemName }).first().click();
+    await this.waitForSpinnerToDisappear();
+  }
+}

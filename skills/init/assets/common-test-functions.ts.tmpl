@@ -1,0 +1,33 @@
+export class CommonTestFunctions {
+  randomBoolean(): boolean {
+    return Math.random() < 0.5;
+  }
+
+  randomNumber(length: number = 7): number {
+    const max = Math.pow(10, length) - 1;
+    return Math.floor(Math.random() * max) + 1;
+  }
+
+  /** Random 8-char alphanumeric string (no leading underscore). Use as a unique suffix. */
+  randomElement(): string {
+    return Math.random().toString(36).substring(2, 10);
+  }
+
+  getRandomNumberByLength(length: number): string {
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += Math.floor(Math.random() * 10).toString();
+    }
+    return result;
+  }
+
+  /** Date N days from now, formatted as MMDDYYYY (digits only). */
+  getDateNDaysFromNow(daysFromNow: number = 0): string {
+    const d = new Date();
+    d.setDate(d.getDate() + daysFromNow);
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${mm}${dd}${yyyy}`;
+  }
+}

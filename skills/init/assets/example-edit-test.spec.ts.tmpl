@@ -1,0 +1,86 @@
+// Example: edit page test patterns — add, edit, delete, validation, save-disabled state.
+// Excluded from execution via playwright.config.ts testIgnore.
+
+import { test, expect } from '@POM/base-pages-fixture';
+
+test.beforeEach(async ({ loginPage, homePage, usersPage }) => {
+  await test.step('Given User logged in successfully', async () => {
+    await loginPage.visit();
+    await loginPage.loginWithDefaultCredentials();
+  });
+  await test.step('And navigated to Users', async () => {
+    await homePage.filterAndOpenFromSystemNav('Users');
+    await usersPage.initialize();
+  });
+});
+
+test.afterEach(async ({ browserPage }) => {
+  await browserPage.close();
+});
+
+test('{{TICKET_PREFIX}}-NNNNN: Add a new user', async ({ usersPage, userEditPage, newDescription }) => {
+  let cleanupNeeded = false;
+  await test.step('When User clicks Add New', async () => {
+    await usersPage.addNewButton.click();
+  });
+  await test.step('And populates the required fields', async () => {
+    await userEditPage.descriptionInput.fill(newDescription);
+  });
+  try {
+    await test.step('And saves the record', async () => {
+      await userEditPage.saveAndClose();
+      cleanupNeeded = true;
+    });
+    await test.step('Then the record is displayed in the grid', async () => {
+      await usersPage.verifyExists(newDescription);
+    });
+  } finally {
+    if (cleanupNeeded) {
+      await test.step('Cleanup', async () => {
+        await usersPage.deleteRow(newDescription);
+      });
+    }
+  }
+});
+
+test('{{TICKET_PREFIX}}-NNNNN: Save is disabled when description is empty', async ({ usersPage, userEditPage }) => {
+  await test.step('When User clicks Add New', async () => {
+    await usersPage.addNewButton.click();
+  });
+  await test.step('Then the Save button is disabled', async () => {
+    await userEditPage.verifySaveIsNotAvailable();
+  });
+  await test.step('When User populates the description', async () => {
+    await userEditPage.descriptionInput.fill('Some value');
+  });
+  await test.step('Then the Save button is enabled', async () => {
+    await userEditPage.verifySaveIsAvailable();
+  });
+});
+
+test('{{TICKET_PREFIX}}-NNNNN: Edit an existing user', async ({ usersPage, userEditPage, newDescription }) => {
+  let cleanupNeeded = false;
+  const updated = `${newDescription} Updated`;
+  await test.step('And a user exists', async () => {
+    await usersPage.addNewButton.click();
+    await userEditPage.descriptionInput.fill(newDescription);
+    await userEditPage.saveAndClose();
+    cleanupNeeded = true;
+  });
+  try {
+    await test.step('When User edits the user', async () => {
+      await usersPage.editRowByDescription(newDescription);
+      await userEditPage.descriptionInput.fill(updated);
+      await userEditPage.saveAndClose();
+    });
+    await test.step('Then the updated value is displayed', async () => {
+      await usersPage.verifyExists(updated);
+    });
+  } finally {
+    if (cleanupNeeded) {
+      await test.step('Cleanup', async () => {
+        await usersPage.deleteRow(updated);
+      });
+    }
+  }
+});

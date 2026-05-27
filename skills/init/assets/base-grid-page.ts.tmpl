@@ -1,0 +1,127 @@
+import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from '@POM/base-page';
+
+/**
+ * BaseGridPage — pages with a searchable data table.
+ *
+ * Per-row action buttons (edit/view/delete/duplicate). Subcontrol with text filter,
+ * search button, clear button, add-new button. Can be paged or non-paged.
+ *
+ * Constructor takes a `gridPrefix` string that configures all dynamic row testid patterns.
+ * Pass `'usersGrid'` and you automatically get usersGrid-row-{id}, usersGrid-editBtn-{id}, etc.
+ */
+export class BaseGridPage extends BasePage {
+  readonly grid: Locator;
+  readonly searchInput: Locator;
+  readonly searchButton: Locator;
+  readonly clearButton: Locator;
+  readonly refreshButton: Locator;
+  readonly activeOnlySwitch: Locator;
+  readonly mineOnlySwitch: Locator;
+
+  // Pagination
+  readonly firstPageButton: Locator;
+  readonly previousPageButton: Locator;
+  readonly nextPageButton: Locator;
+  readonly lastPageButton: Locator;
+  readonly currentPageText: Locator;
+
+  constructor(page: Page, gridPrefix: string) {
+    super(page, gridPrefix);
+    this.grid = page.getByTestId(gridPrefix);
+    this.searchInput = page.getByTestId(`${gridPrefix}-searchInput`);
+    this.searchButton = page.getByTestId(`${gridPrefix}-searchBtn`);
+    this.clearButton = page.getByTestId(`${gridPrefix}-clearBtn`);
+    this.refreshButton = page.getByTestId(`${gridPrefix}-refreshBtn`);
+    this.activeOnlySwitch = page.getByTestId(`${gridPrefix}-activeOnlySwitch`);
+    this.mineOnlySwitch = page.getByTestId(`${gridPrefix}-mineOnlySwitch`);
+
+    this.firstPageButton = page.getByTestId(`${gridPrefix}-firstPage`);
+    this.previousPageButton = page.getByTestId(`${gridPrefix}-prevPage`);
+    this.nextPageButton = page.getByTestId(`${gridPrefix}-nextPage`);
+    this.lastPageButton = page.getByTestId(`${gridPrefix}-lastPage`);
+    this.currentPageText = page.getByTestId(`${gridPrefix}-currentPage`);
+  }
+
+  // ─── Search / filter ─────────────────────────────────────────────────────
+  /**
+   * Canonical full-search sequence: fill input + press Enter + click search + wait for spinner.
+   * Single call covers the entire filter operation; eliminates "forgot to click search" bugs.
+   */
+  async filterSearch(text: string): Promise<void> {
+    await this.searchInput.fill(text);
+    await this.searchInput.press('Enter');
+    await this.searchButton.click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  async clickSearchButton(): Promise<void> {
+    await this.searchButton.click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  async clickClearButton(): Promise<void> {
+    await this.clearButton.click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  async clickAddNewButton(): Promise<void> {
+    await this.addNewButton.click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  // ─── Row actions ─────────────────────────────────────────────────────────
+  /** Click the edit/details button on the nth row (0-indexed). */
+  async editRow(index: number): Promise<void> {
+    const buttons = this.page.locator(`[data-testid^="${this.gridPrefix}-detailsBtn-"]`);
+    await buttons.nth(index).click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  /** Find a row by visible description text and click its edit button. */
+  async editRowByDescription(description: string): Promise<void> {
+    const row = this.grid.getByRole('row').filter({ hasText: description });
+    await row.getByRole('button', { name: /edit|view|details/i }).click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  /** Search for the description, then click the delete button, then confirm. */
+  async deleteRow(description: string): Promise<void> {
+    await this.filterSearch(description);
+    const row = this.grid.getByRole('row').filter({ hasText: description });
+    await row.getByRole('button', { name: /delete/i }).click();
+    await this.modalDeleteButton.click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  // ─── Verification ────────────────────────────────────────────────────────
+  /** Assert a row containing the given value is visible. */
+  async verifyExists(value: string): Promise<void> {
+    await expect(this.grid.getByRole('row').filter({ hasText: value })).toBeVisible();
+  }
+
+  /** Assert no row contains the given value. */
+  async verifyNotExists(value: string): Promise<void> {
+    await expect(this.grid.getByRole('row').filter({ hasText: value })).toHaveCount(0);
+  }
+
+  /** Assert the "no records found" empty-state message. */
+  async verifyNoRecordsFound(): Promise<void> {
+    await expect(this.grid.getByText(/no records found/i)).toBeVisible();
+  }
+
+  /** Click a column header to sort by that column. */
+  async sortByColumnName(columnName: string): Promise<void> {
+    await this.grid.getByRole('columnheader', { name: columnName }).click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  /** Assert the visible column headers match the expected list, in order. */
+  async verifyGridColumnNames(expectedColumns: string[]): Promise<void> {
+    const headers = this.grid.getByRole('columnheader');
+    await expect(headers).toHaveCount(expectedColumns.length);
+    for (let i = 0; i < expectedColumns.length; i++) {
+      await expect(headers.nth(i)).toHaveText(expectedColumns[i]);
+    }
+  }
+}

@@ -1,0 +1,120 @@
+import { Page, Locator, expect } from '@playwright/test';
+import { BasePage } from '@POM/base-page';
+
+/**
+ * BaseEditPage — single-record edit/details forms.
+ *
+ * Opens via a grid row's edit button. Has an audit row, inactive switch, form fields,
+ * and an action row with save/cancel. Subclasses add field-specific locators and
+ * domain-specific user-action methods.
+ */
+export class BaseEditPage extends BasePage {
+  readonly editHeader: Locator;
+  readonly auditRow: Locator;
+  readonly descriptionInput: Locator;
+  readonly notesInput: Locator;
+  readonly inactiveSwitch: Locator;
+
+  // Save variant buttons (distinct UX flows)
+  readonly saveAndConfirmButton: Locator;
+  readonly cancelAndDontSaveButton: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.editHeader = page.getByTestId('edit-page-header');
+    this.auditRow = page.getByTestId('audit-row');
+    this.descriptionInput = page.getByTestId('description-input');
+    this.notesInput = page.getByTestId('notes-input');
+    this.inactiveSwitch = page.getByTestId('inactive-switch');
+    this.saveAndConfirmButton = page.getByTestId('save-and-confirm-button');
+    this.cancelAndDontSaveButton = page.getByTestId('cancel-dont-save-button');
+  }
+
+  // ─── Save variants (each is a distinct UX flow) ──────────────────────────
+  /** Primary save, stays on page. Returns when success notification appears. */
+  async save(): Promise<void> {
+    await this.saveButton.click();
+    await this.verifySuccess();
+  }
+
+  /** Save and return to the grid. */
+  async saveAndClose(): Promise<void> {
+    await this.saveAndCloseButton.click();
+    await this.verifySuccess();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  /** Save with confirmation modal — click Yes to confirm. */
+  async saveAndConfirm(): Promise<void> {
+    await this.saveButton.click();
+    await this.modalYesButton.click();
+    await this.verifySuccess();
+  }
+
+  /** Save & close with confirmation modal. */
+  async saveAndCloseAndConfirm(): Promise<void> {
+    await this.saveAndCloseButton.click();
+    await this.modalConfirmButton.click();
+    await this.verifySuccess();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  /** Trigger save then cancel the confirmation — used for testing rollback. */
+  async saveAndCancel(): Promise<void> {
+    await this.saveButton.click();
+    await this.modalCancelButton.click();
+  }
+
+  /** Cancel + Don't Save in the unsaved-changes prompt. */
+  async cancelAndDontSave(): Promise<void> {
+    await this.cancelButton.click();
+    await this.modalNoButton.click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  /** Back navigation; warns if there are unsaved changes. */
+  async back(): Promise<void> {
+    await this.backButton.click();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  // ─── Delete ──────────────────────────────────────────────────────────────
+  /** Click delete + click Yes in confirm modal. */
+  async deleteAndConfirm(): Promise<void> {
+    await this.deleteButton.click();
+    await this.modalYesButton.click();
+    await this.verifySuccess();
+    await this.waitForSpinnerToDisappear();
+  }
+
+  // ─── State verification ──────────────────────────────────────────────────
+  async verifySaveIsAvailable(): Promise<void> {
+    await expect(this.saveButton).toBeEnabled();
+  }
+
+  async verifySaveIsNotAvailable(): Promise<void> {
+    await expect(this.saveButton).toBeDisabled();
+  }
+
+  /** Extract the numeric ID from the audit row (e.g. "ID: 42 | Created by..."). */
+  async getRecordId(): Promise<string> {
+    const text = (await this.auditRow.textContent()) ?? '';
+    const match = text.match(/ID:\s*(\d+)/);
+    return match ? match[1] : '';
+  }
+
+  // ─── OPTIONAL: Permissions helpers ───────────────────────────────────────
+  // Remove these methods if your project doesn't have a permissions/access-control system.
+
+  /** Assert no rights — record cannot be viewed at all. */
+  async verifyNoSecurityRightsState(): Promise<void> {
+    await expect(this.editHeader).toBeHidden();
+  }
+
+  /** Assert view-only — form fields disabled, save/delete hidden. */
+  async verifyViewOnlyRightsState(): Promise<void> {
+    await expect(this.descriptionInput).toBeDisabled();
+    await expect(this.saveButton).toBeHidden();
+    await expect(this.deleteButton).toBeHidden();
+  }
+}

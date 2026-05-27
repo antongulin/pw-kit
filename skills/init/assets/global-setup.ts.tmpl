@@ -1,0 +1,10 @@
+import { FullConfig } from '@playwright/test';
+
+async function globalSetup(config: FullConfig) {
+  console.log('Running global setup...');
+  // Add machine-specific / runtime-config initialization here.
+  // Example: read a per-machine config file and write derived values to .env
+  console.log('Finished global setup');
+}
+
+export default globalSetup;

@@ -1,0 +1,29 @@
+# Built plugin artifacts
+*.plugin
+*.zip
+dist/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# Node (in case someone runs npm here)
+node_modules/
+package-lock.json
+npm-debug.log*
+
+# Python (for skill-creator helper scripts)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# Eval workspace artifacts (kept local)
+*-workspace/
+eval-results/

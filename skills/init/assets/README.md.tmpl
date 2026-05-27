@@ -1,0 +1,64 @@
+# {{PROJECT_NAME}}
+
+Playwright + TypeScript end-to-end tests for the application.
+
+## Prerequisites
+
+- Node.js 18+
+- npm
+
+## Install
+
+```bash
+npm install
+npx playwright install --with-deps
+cp .env.example .env
+# edit .env with your real BASE_URL and credentials
+```
+
+## Run
+
+```bash
+npm test                 # all tests, headless
+npm run test:headed      # headed mode
+npm run test:ui          # interactive UI mode
+npm run report           # open the last HTML report
+```
+
+## Project structure
+
+```
+pages/             Page Object Model — base classes and per-feature POMs
+modals/            Shared modal POMs
+tests/             Test specs, mirrors pages/ structure
+api/               API helpers (resource classes, listeners)
+data/              Static test data
+tests/utility/     Common helpers + example test patterns (excluded from execution)
+```
+
+## Conventions
+
+Read `AGENTS.md` at the project root for the full convention guide. Highlights:
+
+- Test names: `{{TICKET_PREFIX}}-NNNNN: Description`
+- Every test uses `test.step` with Gherkin Given/When/Then/Cleanup
+- Locators: `getByTestId` first, then semantic role/label/placeholder
+- Dates: `typeDateValue()` only — never `fill()` or `pressSequentially()` on date inputs
+- Data cleanup: `try/finally` with `cleanupNeeded` flag
+- Web-first assertions only: `await expect(locator).toXxx()`
+
+## AI-driven test development
+
+If you use Claude Code, the `pw-kit` plugin contains 14 skills that auto-activate when you edit POM/test files, plus 5 slash commands for guided workflows:
+
+| Command | Purpose |
+|---|---|
+| `/pw-kit:new-test` | Guided test creation from a ticket |
+| `/pw-kit:fix-test` | Investigate and fix a failing test |
+| `/pw-kit:pre-pr` | Pre-PR convention checklist |
+| `/pw-kit:create-test-cases` | Generate Gherkin test cases from a dev ticket |
+| `/pw-kit:init` | Scaffold a new project from these conventions |
+
+## License
+
+See LICENSE.

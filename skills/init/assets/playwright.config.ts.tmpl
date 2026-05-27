@@ -1,0 +1,41 @@
+import { devices, defineConfig } from '@playwright/test';
+import 'dotenv/config';
+
+export default defineConfig({
+  testDir: './tests',
+  testIgnore: [
+    '**/utility/example-test-patterns/**'
+  ],
+  timeout: 240 * 1000,
+  snapshotPathTemplate: '{testDir}/{testFilePath}/../snapshots/{arg}{ext}',
+  expect: {
+    timeout: 30 * 1000
+  },
+  fullyParallel: false,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 1,
+  reporter: process.env.CI
+    ? 'list'
+    : [['html', { outputFolder: 'playwright-report/html', open: 'never' }]],
+  use: {
+    // null = use the browser's default window size (no fixed viewport constraint)
+    viewport: null,
+    actionTimeout: 30 * 1000,
+    baseURL: process.env.BASE_URL,
+    ignoreHTTPSErrors: true,
+    trace: process.env.CI ? 'retain-on-failure' : 'on',
+    headless: true,
+    screenshot: 'off'
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        contextOptions: { permissions: ['clipboard-read'] }
+      }
+    }
+  ],
+  globalSetup: './global-setup',
+  outputDir: 'test-results/'
+});

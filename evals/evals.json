@@ -1,0 +1,40 @@
+{
+  "skill_name": "playwright-ai-kit",
+  "evals": [
+    {
+      "id": 0,
+      "name": "locators-missing-testid",
+      "skill_under_test": "locators",
+      "prompt": "I'm adding a Delete button to my OrdersPage POM. The button is rendered as `<button class=\"icon-btn\" aria-label=\"Delete order\">×</button>` inside a row. The row has `data-testid=\"ordersGrid-row-42\"` but the button itself has no data-testid. The current code in the page object is:\n\n```ts\nthis.deleteOrderButton = page.locator('.icon-btn').first();\n```\n\nI want this to work for any row, not just the first. How should I write this locator? Show me the corrected code and explain the reasoning briefly.",
+      "expected_output": "Should recommend a chained locator combining the row testid with getByRole, declare it as a parameterized arrow function (rowById/deleteButtonForRow), add a TODO comment about the missing testid with a ticket prefix, and reject the .locator('.icon-btn').first() pattern."
+    },
+    {
+      "id": 1,
+      "name": "pom-new-grid-page",
+      "skill_under_test": "pom",
+      "prompt": "I need to create a new page object for a Customers page. The page shows a searchable grid of customer records — each row has columns Name, Email, Status — and per-row Edit and Delete buttons. Above the grid there's a search input, a Status dropdown filter, and an Add New Customer button. Grid rows have `data-testid=\"customersGrid-row-{id}\"` and the buttons follow the same convention (customersGrid-editBtn-{id}, customersGrid-deleteBtn-{id}). The Add New button has data-testid='add-customer-button', the search input is 'customer-search-input', and the status dropdown is 'status-filter-dropdown'.\n\nWrite the full TypeScript page object class. Show only the TypeScript code, no extensive explanation.",
+      "expected_output": "Should produce a TypeScript class named CustomersPage (plural), extending BaseGridPage, with gridPrefix passed to super as 'customersGrid', readonly Locator properties for static elements (addCustomerButton, customerSearchInput, statusFilterDropdown), arrow function parameterized locators for row buttons (e.g., editButtonById, deleteButtonById), proper imports, and possibly a filterByStatus user-action method."
+    },
+    {
+      "id": 2,
+      "name": "fixtures-register-pom",
+      "skill_under_test": "fixtures",
+      "prompt": "I just created two page objects: CustomersPage at pages/customers/customers-page.ts and CustomerEditPage at pages/customers/customer-edit-page.ts. My base-pages-fixture.ts currently has fixtures for LoginPage, HomePage, OrdersPage, OrderEditPage (in that alphabetical order in both the Pages interface and the test.extend body). Show me exactly what I need to add and where, including the import statements. Just show the diffs or the lines to add at the correct positions.",
+      "expected_output": "Should show: (1) two new import statements at the top, alphabetically positioned (CustomerEditPage before CustomersPage); (2) two new entries in the Pages interface alphabetically (customerEditPage: CustomerEditPage; customersPage: CustomersPage;); (3) two new fixture bodies in test.extend({...}) alphabetically positioned, both using { browserPage } as dependency, NOT { page }. Should mention alphabetical rule and the browserPage vs page distinction."
+    },
+    {
+      "id": 3,
+      "name": "test-org-crud-test",
+      "skill_under_test": "test-organization",
+      "prompt": "Write a complete Playwright test for ticket TASK-789 that covers this scenario: User creates a new customer, verifies it appears in the grid, then updates the customer's email and verifies the update, then deletes the customer. I have CustomersPage and CustomerEditPage available as fixtures. Use newDescription as a unique-data fixture. Each scenario should be a separate test in a single test.describe block.",
+      "expected_output": "Should produce 3 separate tests under one test.describe('TASK-789', ...), each named 'TASK-789 Scenario N: ...' format. Each test uses test.step with Gherkin Given/When/And/Then. Data-modifying tests use try/finally with cleanupNeeded flag and a step named exactly 'Cleanup'. User referred to as 'User'. No hardcoded waits. Uses fixture destructuring with browserPage if needed."
+    },
+    {
+      "id": 4,
+      "name": "new-test-proposal",
+      "skill_under_test": "new-test",
+      "prompt": "I have a new feature ticket TASK-555: 'User can mark a customer as VIP from the customer detail page. When marked, a star badge appears next to their name in the customer grid.' My ticket has these scenarios:\n- Scenario 1: User marks customer as VIP from edit page → star appears in grid\n- Scenario 2: User unmarks a VIP customer → star disappears from grid\n- Scenario 3: VIP filter switch in grid shows only VIP customers\n\nThe app repo is at /app-repo (assume I have access). I have existing CustomersPage and CustomerEditPage. The VIP toggle on the edit page has data-testid='vip-toggle-switch', the VIP badge has data-testid='customersGrid-vipBadge-{id}', the VIP filter has 'vip-only-switch'. Produce ONLY the Phase 5 implementation proposal (no code yet — you'll write code after I approve). Use the exact structure from the proposal template.",
+      "expected_output": "Should produce a structured Phase 5 proposal document covering: test file path, page object changes (extending which base, what new methods), new locators table with testid info, fixture registry changes (alphabetical position), test structure with verbatim ticket step text in Gherkin format, cleanup strategy per test, any open questions. Should NOT include actual test implementation code (proposal only). Should explicitly ask for approval at the end."
+    }
+  ]
+}

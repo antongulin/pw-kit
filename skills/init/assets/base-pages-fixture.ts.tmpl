@@ -1,0 +1,77 @@
+import { test as baseTest, expect, chromium, Browser, Page } from '@playwright/test';
+import { CommonTestFunctions } from '@CommonTestFunctions/common-test-functions';
+import { HomePage } from '@POM/home-page';
+import { LoginPage } from '@POM/login-page';
+// Add page object imports here, alphabetically by class name.
+
+// Pages interface — every fixture must be declared here for type safety.
+// MAINTAIN ALPHABETICAL ORDER. PRs that break the order are flagged in code review.
+export interface Pages {
+  browser: Browser;
+  browserPage: Page;
+  common: CommonTestFunctions;
+  futureDateString: string;
+  homePage: HomePage;
+  isCI: boolean;
+  loginPage: LoginPage;
+  newDescription: string;
+  todayString: string;
+}
+
+export const test = baseTest.extend<Pages>({
+  // Browser is worker-scoped (one per worker process).
+  browser: [
+    async ({}, use) => {
+      const browser = await chromium.launch({});
+      await use(browser);
+      await browser.close();
+    },
+    { scope: 'worker' }
+  ],
+
+  // browserPage is test-scoped (fresh context per test).
+  // EVERY page object fixture must depend on { browserPage }, NEVER on { page }.
+  browserPage: async ({ browser }, use) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await use(page);
+    await context.close();
+  },
+
+  common: async ({}, use) => {
+    await use(new CommonTestFunctions());
+  },
+
+  futureDateString: async ({}, use) => {
+    const future = new Date();
+    future.setDate(future.getDate() + 3);
+    const mm = String(future.getMonth() + 1).padStart(2, '0');
+    const dd = String(future.getDate()).padStart(2, '0');
+    await use(`${mm}${dd}${future.getFullYear()}`);
+  },
+
+  homePage: async ({ browserPage }, use) => {
+    await use(new HomePage(browserPage));
+  },
+
+  isCI: async ({}, use) => {
+    await use(!!process.env.CI);
+  },
+
+  loginPage: async ({ browserPage }, use) => {
+    await use(new LoginPage(browserPage));
+  },
+
+  newDescription: async ({ common }, use) => {
+    await use(`Test_${common.randomElement()}`);
+  },
+
+  todayString: async ({}, use) => {
+    const today = new Date();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    await use(`${mm}${dd}${today.getFullYear()}`);
+  }
+});
+
+export { expect };

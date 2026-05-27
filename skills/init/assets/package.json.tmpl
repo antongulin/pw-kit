@@ -1,0 +1,31 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "version": "1.0.0",
+  "description": "Playwright + TypeScript test automation",
+  "main": "index.js",
+  "directories": { "test": "tests" },
+  "scripts": {
+    "test": "npx playwright test",
+    "test:headed": "npx playwright test --headed",
+    "test:ui": "npx playwright test --ui",
+    "report": "npx playwright show-report playwright-report/html",
+    "lint": "npx eslint . --ext .ts",
+    "format": "npx prettier --write .",
+    "format:check": "npx prettier --check ."
+  },
+  "devDependencies": {
+    "@playwright/test": "latest",
+    "@types/node": "latest",
+    "@typescript-eslint/eslint-plugin": "latest",
+    "@typescript-eslint/parser": "latest",
+    "@faker-js/faker": "latest",
+    "dotenv": "latest",
+    "eslint": "latest",
+    "eslint-config-standard-with-typescript": "latest",
+    "eslint-plugin-import": "latest",
+    "eslint-plugin-n": "latest",
+    "eslint-plugin-promise": "latest",
+    "prettier": "latest",
+    "typescript": "latest"
+  }
+}

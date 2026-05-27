@@ -1,0 +1,80 @@
+// Example: grid page test patterns — search, filter, sort, pagination, delete.
+// This file is in tests/utility/example-test-patterns/ and is excluded from execution
+// via playwright.config.ts testIgnore.
+//
+// Copy any pattern below into your real test files and adapt.
+
+import { test, expect } from '@POM/base-pages-fixture';
+
+const featureName = 'Users';
+
+test.beforeEach(async ({ loginPage, homePage, usersPage }) => {
+  await test.step('Given User logged in successfully', async () => {
+    await loginPage.visit();
+    await loginPage.loginWithDefaultCredentials();
+  });
+  await test.step(`And navigated to ${featureName}`, async () => {
+    await homePage.filterAndOpenFromSystemNav(featureName);
+    await usersPage.initialize();
+  });
+});
+
+test.afterEach(async ({ browserPage }) => {
+  await browserPage.close();
+});
+
+test('{{TICKET_PREFIX}}-NNNNN: Grid default display', async ({ usersPage }) => {
+  await test.step('When the grid displays', async () => {
+    await expect(usersPage.grid).toBeVisible();
+  });
+  await test.step('Then the default columns are shown in order', async () => {
+    await usersPage.verifyGridColumnNames(['Name', 'Email', 'Status']);
+  });
+});
+
+test('{{TICKET_PREFIX}}-NNNNN: Search by email', async ({ usersPage }) => {
+  await test.step('When User searches for an email', async () => {
+    await usersPage.filterSearch('admin@example.com');
+  });
+  await test.step('Then the matching record appears', async () => {
+    await usersPage.verifyExists('admin@example.com');
+  });
+});
+
+test('{{TICKET_PREFIX}}-NNNNN: Sort by name ascending', async ({ usersPage }) => {
+  await test.step('When User clicks the Name column header', async () => {
+    await usersPage.sortByColumnName('Name');
+  });
+  await test.step('Then the records are sorted by name ascending', async () => {
+    const firstRow = usersPage.grid.getByRole('row').nth(1);
+    const lastRow = usersPage.grid.getByRole('row').last();
+    const first = (await firstRow.textContent()) ?? '';
+    const last = (await lastRow.textContent()) ?? '';
+    expect(first.localeCompare(last)).toBeLessThanOrEqual(0);
+  });
+});
+
+test('{{TICKET_PREFIX}}-NNNNN: Delete a user from the grid', async ({ usersPage, userEditPage, newDescription }) => {
+  let cleanupNeeded = false;
+  await test.step('And a test user exists', async () => {
+    await usersPage.addNewButton.click();
+    await userEditPage.descriptionInput.fill(newDescription);
+    await userEditPage.saveAndClose();
+    cleanupNeeded = true;
+  });
+  try {
+    await test.step('When User deletes the user from the grid', async () => {
+      await usersPage.deleteRow(newDescription);
+      cleanupNeeded = false; // delete IS the test action; no extra cleanup needed
+    });
+    await test.step('Then the user is no longer in the grid', async () => {
+      await usersPage.verifyNotExists(newDescription);
+    });
+  } finally {
+    if (cleanupNeeded) {
+      await test.step('Cleanup', async () => {
+        await usersPage.deleteRow(newDescription);
+      });
+    }
+  }
+});

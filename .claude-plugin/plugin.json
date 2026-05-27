@@ -1,0 +1,39 @@
+{
+  "name": "pw-kit",
+  "displayName": "Playwright Kit (pw-kit)",
+  "version": "0.1.0",
+  "description": "AI-driven Playwright + TypeScript test automation kit. 14 skills: 8 knowledge skills (locators, POM, fixtures, test-organization, forms-and-dates, assertions, test-data, api-testing), 1 tool reference (cli-tool), and 5 workflow skills (/pw-kit:new-test, /pw-kit:fix-test, /pw-kit:pre-pr, /pw-kit:create-test-cases, /pw-kit:init). Works with any modern web framework (React, Vue, Angular).",
+  "author": {
+    "name": "Anton Gulin",
+    "email": "i@anton.qa",
+    "url": "https://www.anton.qa"
+  },
+  "homepage": "https://www.anton.qa",
+  "repository": "https://github.com/antongulin/pw-kit",
+  "license": "MIT",
+  "keywords": [
+    "playwright",
+    "typescript",
+    "testing",
+    "test-automation",
+    "page-object-model",
+    "e2e",
+    "ai"
+  ],
+  "userConfig": {
+    "ticketPrefix": {
+      "type": "string",
+      "title": "Ticket prefix",
+      "description": "Your project tracking prefix used in test names (e.g., DEVQA, JIRA, LIN, GH). Tests will be named like 'PREFIX-12345: Description'.",
+      "required": true,
+      "default": "TASK"
+    },
+    "appRepoPath": {
+      "type": "string",
+      "title": "Application repository path",
+      "description": "Local path to the application-under-test repo. Used by /pw-kit:new-test to analyze source code for data-testid attributes, routes, and API contracts. Leave blank if the app is not in a local repo.",
+      "required": false,
+      "default": ""
+    }
+  }
+}
