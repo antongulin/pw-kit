@@ -27,3 +27,6 @@ __pycache__/
 # Eval workspace artifacts (kept local)
 *-workspace/
 eval-results/
+
+# Serena artifacts
+.serena/

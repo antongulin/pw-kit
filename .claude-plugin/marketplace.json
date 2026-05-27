@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "pw-kit",
+  "owner": {
+    "name": "Anton Gulin"
+  },
+  "metadata": {
+    "description": "AI-driven Playwright + TypeScript test automation kit"
+  },
+  "plugins": [
+    {
+      "name": "pw-kit",
+      "source": "./",
+      "description": "AI-driven Playwright + TypeScript test automation kit. 14 skills: 8 knowledge skills (locators, POM, fixtures, test-organization, forms-and-dates, assertions, test-data, api-testing), 1 tool reference (cli-tool), and 5 workflow skills (/pw-kit:new-test, /pw-kit:fix-test, /pw-kit:pre-pr, /pw-kit:create-test-cases, /pw-kit:init). Works with any modern web framework (React, Vue, Angular)."
+    }
+  ]
+}
