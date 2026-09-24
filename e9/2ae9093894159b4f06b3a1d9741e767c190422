@@ -1,0 +1,19 @@
+AGENTS.md
+  s_71fcb9d2d04f95::t_291f0a37dc0c7f 1-3,5-89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e92ae9093894159b4f06b3a1d9741e767c190422",
+  "prompts": {},
+  "sessions": {
+    "s_71fcb9d2d04f95": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a0d089-b1ac-7751-846a-bff1ef7eed23",
+        "model": "gpt-6-sol"
+      },
+      "human_author": "Anton Gulin <anton@boostbusiness.ai>"
+    }
+  }
+}
