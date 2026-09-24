@@ -11,6 +11,7 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 !.vscode/settings.json
+!.vscode/mcp.json
 .idea/
 
 # Node (in case someone runs npm here)
@@ -28,5 +29,9 @@ __pycache__/
 *-workspace/
 eval-results/
 
-# Serena artifacts
+# Serena artifacts — retired; ignore guard kept so a stale local .serena/
+# can never be committed. CodeGraph replaced Serena as the code-intelligence tool.
 .serena/
+
+# CodeGraph local index and daemon state; the MCP config files are committed.
+.codegraph/
