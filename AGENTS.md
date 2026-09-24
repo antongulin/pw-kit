@@ -13,7 +13,7 @@
 skills/                    -> 14 repo-local Skills; each has SKILL.md (+ references/, assets/)
 skills/init/assets/        -> 23 *.tmpl scaffolding templates emitted by /pw-kit:init
 evals/                     -> eval case definitions (evals.json)
-.github/workflows/         -> validate.yml plugin-structure CI
+.github/workflows/         -> validate.yml plugin-structure CI; robin.yml PR reviewer caller
 README.md / CHANGELOG.md   -> user-facing docs; keep in sync with skill behavior
 .mcp.json, opencode.jsonc, .codex/, .cursor/, .vscode/ -> committed CodeGraph MCP wiring per client
 .codegraph/                -> machine-local CodeGraph index (untracked, gitignored)
@@ -79,7 +79,7 @@ README.md / CHANGELOG.md   -> user-facing docs; keep in sync with skill behavior
 
 - This directory is a Git repository with `main` tracking `origin/main`; remote is `antongulin/pw-kit` (local folder name differs from remote — same repo, not a duplicate).
 - No package manager, build, or runtime is configured; there is no application test suite.
-- CI is `.github/workflows/validate.yml` (plugin-manifest JSON parse, `SKILL.md` presence, `references/` link resolution, required init templates). No Robin review workflow is installed on `main` as of 2026-09-23.
+- CI is `.github/workflows/validate.yml` (plugin-manifest JSON parse, `SKILL.md` presence, `references/` link resolution, required init templates). Robin is installed on `main` via `.github/workflows/robin.yml`, which calls `antongulin/robin/.github/workflows/review.yml@main` on `pull_request` and `issue_comment` events using the `ROBIN_LLM_API_KEY`/`ROBIN_LLM_BASE_URL`/`ROBIN_LLM_MODEL` secrets; it skips fork PRs that lack those secrets.
 - `reports/` is untracked user audit output; leave it local.
 
 ## Index of scoped AGENTS.md
