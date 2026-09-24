@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   review:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     uses: antongulin/robin/.github/workflows/review.yml@main
     secrets:
       LLM_API_KEY: ${{ secrets.ROBIN_LLM_API_KEY }}
