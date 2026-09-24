@@ -1,0 +1,14 @@
+.github/workflows/robin.yml
+  h_189d15dd58c223 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "27da31a43c5eae2ef1ffaf1a23c2a9060b77b93a",
+  "prompts": {},
+  "humans": {
+    "h_189d15dd58c223": {
+      "author": "Anton Gulin <anton@boostbusiness.ai>"
+    }
+  }
+}
