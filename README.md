@@ -330,6 +330,8 @@ The plugin source lives at [github.com/antongulin/pw-kit](https://github.com/ant
 
 To add a new skill, follow the pattern in `skills/locators/` — `SKILL.md` with frontmatter + `references/` for deeper content. Keep `SKILL.md` under 500 lines; put detail in references.
 
+For agent-assisted edits, this repo commits project-local **CodeGraph** MCP wiring (Claude-compatible `.mcp.json`, `.codex/config.toml`, `opencode.jsonc`, `.cursor/mcp.json`, `.vscode/mcp.json`). See `AGENTS.md` → "Code intelligence: CodeGraph". Serena and Superpowers are retired here; `.codegraph/` is a local, gitignored index.
+
 ---
 
 ## Author
