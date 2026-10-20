@@ -15,6 +15,8 @@ jobs:
   review:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     uses: antongulin/robin/.github/workflows/review.yml@main
+    with:
+      runner: '"ubicloud-standard-2"'
     secrets:
       LLM_API_KEY: ${{ secrets.ROBIN_LLM_API_KEY }}
       LLM_BASE_URL: ${{ secrets.ROBIN_LLM_BASE_URL }}
